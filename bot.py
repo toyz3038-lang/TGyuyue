@@ -7,7 +7,8 @@ from telegram.ext import MessageHandler, filters
 
 from database import conn, cursor
 
-TOKEN = "7970930074:AAGqunBb0fT1Ak0HCtskBIzeIhZdMo1yVp0"
+import os
+TOKEN = os.getenv("TOKEN")
 
 
 # 新增預約
