@@ -115,14 +115,14 @@ async def menu(update, context):
     if "預約" in text:
 
         keywords = [
-        "幫我", "查", "有沒有", "沒有", "預約", "看",
-        "一下", "嗎", "的", "了", "有"
+            "幫我", "查", "有沒有", "沒有", "預約", "看",
+            "一下", "嗎", "的", "了", "有"
     ]
 
         name = text
 
-    for k in keywords:
-        name = name.replace(k, "")
+        for k in keywords:
+            name = name.replace(k, "")
 
         name = re.sub(r"\d{4}", "", name)
         name = re.sub(r"\d{2}[\/\.\-]\d{2}", "", name)
@@ -131,21 +131,20 @@ async def menu(update, context):
         name = name.strip()
 
         rows = cursor.execute(
-        "SELECT name, date, time FROM bookings WHERE name LIKE ?",
-        (f"%{name}%",)
+            "SELECT name, date, time FROM bookings WHERE name LIKE ?",
+            (f"%{name}%",)
     ).fetchall()
 
-    if not rows:
-        await update.message.reply_text(f"{name} 沒有預約")
-    else:
-        msg = f"{name} 的預約\n\n"
-        for r in rows:
-            msg += f"{r[1]} {r[2]}\n"
+        if not rows:
+            await update.message.reply_text(f"{name} 沒有預約")
+        else:
+            msg = f"{name} 的預約\n\n"
+            for r in rows:
+               msg += f"{r[1]} {r[2]}\n"
 
-        await update.message.reply_text(msg)
+            await update.message.reply_text(msg)
 
-    return
-
+        return
     # 👉 今天
     if "今天" in text or "今日" in text:
         await today(update, context)
@@ -193,8 +192,7 @@ async def menu(update, context):
     # 👉 fallback
     await update.message.reply_text("❓看不懂你的意思，可以試試輸入：\n王小明有沒有預約")
                 
-async def start(update, context):
-
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         ["新增預約"],
         ["今日預約", "明日預約"],
@@ -202,10 +200,7 @@ async def start(update, context):
         ["指令說明"]
     ]
 
-    reply_markup = ReplyKeyboardMarkup(
-        keyboard,
-        resize_keyboard=True
-    )
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
     await update.message.reply_text(
         "預約系統已啟動\n請選擇功能",
@@ -335,10 +330,7 @@ async def help_command(update, context):
     )
 
     await update.message.reply_text(msg)
-    
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
-    await update.message.reply_text(f"收到：{text}")
+
 
 def main():
 
@@ -353,16 +345,14 @@ def main():
     app.add_handler(CommandHandler("list", list_booking))
     app.add_handler(CommandHandler("id", getid))
 
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, menu))
     # ⭐ 官方排程（最穩）
     import datetime as dt
 
-    job_queue = app.job_queue
-
-    job_queue.run_daily(
-        daily_list,
-        time=dt.time(hour=0, minute=0)
+    if app.job_queue:
+        app.job_queue.run_daily(
+            daily_list,
+            time=dt.time(hour=0, minute=0)
     )
 
     print("Bot started")
