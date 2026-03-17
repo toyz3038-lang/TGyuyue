@@ -335,6 +335,10 @@ async def help_command(update, context):
     )
 
     await update.message.reply_text(msg)
+    
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text
+    await update.message.reply_text(f"收到：{text}")
 
 def main():
 
@@ -349,7 +353,7 @@ def main():
     app.add_handler(CommandHandler("list", list_booking))
     app.add_handler(CommandHandler("id", getid))
 
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, menu))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # ⭐ 官方排程（最穩）
     import datetime as dt
